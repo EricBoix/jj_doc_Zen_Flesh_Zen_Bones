@@ -11,8 +11,6 @@ RUN set -ex \
 WORKDIR /jj_doc_Zen_Flesh_Zen_Bones.git/Convert
 RUN set -ex && pip install --root-user-action=ignore -r requirements.txt
 
-RUN pip freeze --all
-
 # Systematically run tests at build time (fail often, fail early)
 RUN set -ex \
     && pip install --root-user-action=ignore -r requirements-dev.txt \
