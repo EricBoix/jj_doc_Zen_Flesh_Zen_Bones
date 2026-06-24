@@ -42,7 +42,7 @@ python main.py
 ## Running the PDF conversion with docker
 
 ```bash
-docker build -tjejuness:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_doc_Zen_Flesh_Zen_Bones.git#:DockerContext
+docker build -t jejuness:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_doc_Zen_Flesh_Zen_Bones.git#:DockerContext
 docker run --rm jejuness:doc_Zen_Flesh_Zen_Bones --help
 ```
 
@@ -70,7 +70,7 @@ From original PDF to markdown and JSON
 
 ```bash
 cd `git rev-parse --show-toplevel`
-docker build -tjejuness:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_doc_Zen_Flesh_Zen_Bones.git#:DockerContext
+docker build -t jejuness:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_doc_Zen_Flesh_Zen_Bones.git#:DockerContext
 docker run --rm  -v `pwd`/result_data:/output jejuness:doc_Zen_Flesh_Zen_Bones --output_directory /output
 ```
 
@@ -153,6 +153,7 @@ stop_neo4j_db
 Within the above running context (directory and installed virtual environment)
 
 ```bash
+cd `git rev-parse --show-toplevel`/Convert
 pip install -r requirements-dev.txt
 pytest test_main.py
 ```
@@ -164,8 +165,3 @@ Once development has improved some resulting converted files the following comma
 ```bash
 python main.py --output_directory ../result_data/
 ```
-
-### Code limitations/errors to be fixed
-
-- Refer to the [Peculiarities](#peculiarities) section for known book-content issues
-  that affect the extraction output.

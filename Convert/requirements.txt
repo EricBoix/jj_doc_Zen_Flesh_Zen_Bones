@@ -1,3 +1,1 @@
-pypdf>=5.6.0
-mdutils
-black
+git+https://github.com/EricBoix/pdf-to-markdown.git

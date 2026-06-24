@@ -1,0 +1,11 @@
+{
+    "cSpell.customDictionaries": {
+        "gold-dust-words": {
+            "name": "zen_flesh_zen_bones",
+            "path": "${workspaceRoot}/zen_flesh_zen_bones-words.txt",
+            "description": "Words used for Zen Flesh Zen Bones",
+            "addWords": true
+        },
+        "zen_flesh_zen_bones": true
+    }
+}

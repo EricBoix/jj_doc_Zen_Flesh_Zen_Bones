@@ -66,7 +66,6 @@ def convert():
     pdf_filename = os.path.join(
         os.path.dirname(__file__),
         "..",
-        "..",
         "original_data",
         "1957_-_Paul_Reps_-_Zen_flesh_zen_bones-A_Collection_of_Zen_and_Pre_Zen_Writings_-_Scan_by_OceanofPDF_dot_com.pdf",
     )
