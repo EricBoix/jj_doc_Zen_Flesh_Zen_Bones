@@ -61,9 +61,12 @@ Setup and context clean-up
 ```bash
 cd `git rev-parse --show-toplevel`         # Implicit from now on
 git clone https://github.com/EricBoix/jj_workflow_shell.git
+source jj_workflow_shell/init.bash
+```
 
+```bash
 export RESULTS_DIR=`pwd`/result_data       # Syntactic sugar
-\rm -fr result_data/database
+\rm -fr $RESULTS_DIR/database               # Clean slate from previous run
 ```
 
 From original PDF to markdown and JSON
@@ -71,57 +74,27 @@ From original PDF to markdown and JSON
 ```bash
 cd `git rev-parse --show-toplevel`
 docker build -t jejuness:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_doc_Zen_Flesh_Zen_Bones.git#:DockerContext
-docker run --rm  -v `pwd`/result_data:/output jejuness:doc_Zen_Flesh_Zen_Bones --output_directory /output
+docker run --rm  -v $RESULTS_DIR:/output jejuness:doc_Zen_Flesh_Zen_Bones --output_directory /output
 ```
 
-Change the following neo4j database parameter values in order to suit your needs
+Copy the `env-reference` file to a new `.env` file and customize the environment variables values in order to suit your needs
+
+Prerequisite to Knowledge Graph (KG) extraction: launch a neo4j database
 
 ```bash
-export NEO4J_PORT=7687
-export NEO4J_USERNAME=neo4j
-export NEO4J_PASSWORD=your_password
-```
-
-The also adapt the following LLM server designation and credentials
-
-```bash
-LLM_MODEL_URL=https://ollama-ui.pagoda.liris.cnrs.fr/ollama/
-LLM_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-LLM_MODEL_NAME=llama3:70b
-```
-
-Transmitting (by file) servers info to upcoming treatment processes:
-
-```bash
-echo "# Neo4j server designation and associated credentials" > .env
-echo "NEO4J_URI=bolt://localhost:$NEO4J_PORT"                >> .env
-echo "NEO4J_USERNAME=$NEO4J_USERNAME"                        >> .env
-echo "NEO4J_PASSWORD=$NEO4J_PASSWORD"                        >> .env
-#
-echo "### LLM server designation and associate credential" >> .env
-echo "MODEL_URL=$LLM_MODEL_URL"                            >> .env
-echo "API_KEY=$LLM_API_KEY"                                >> .env
-echo "MODEL=$LLM_MODEL_NAME"                               >> .env
-```
-
-Prerequisite Knowledge Graph (KG) extraction: launch a neo4j database
-
-```bash
-source jj_workflow_shell/Neo4jDatabase.sh    # Implicit from now on
-launch_neo4j_db $RESULTS_DIR $NEO4J_PORT $NEO4J_USERNAME/$NEO4J_PASSWORD
+jj_launch_neo4j_db $RESULTS_DIR $NEO4J_PORT $NEO4J_USERNAME/$NEO4J_PASSWORD
 ```
 
 Run the (Knowledge Graph) extraction
 
 ```bash
-source jj_workflow_shell/treatments.sh   # Implicit from now on
-extract_knowledge_graph $RESULTS_DIR '--load_markdown_document 1957_-_Paul_Reps_-_Zen_flesh_zen_bones-A_Collection_of_Zen_and_Pre_Zen_Writings_-_Scan_by_OceanofPDF_dot_com_-_local_converter.md  --load_json_document 1957_-_Paul_Reps_-_Zen_flesh_zen_bones-A_Collection_of_Zen_and_Pre_Zen_Writings_-_Scan_by_OceanofPDF_dot_com_-_Sentences_as_LangChain_Document.json'
+jj_extract_knowledge_graph $RESULTS_DIR '--load_markdown_document 1957_-_Paul_Reps_-_Zen_flesh_zen_bones-A_Collection_of_Zen_and_Pre_Zen_Writings_-_Scan_by_OceanofPDF_dot_com_-_local_converter.md  --load_json_document 1957_-_Paul_Reps_-_Zen_flesh_zen_bones-A_Collection_of_Zen_and_Pre_Zen_Writings_-_Scan_by_OceanofPDF_dot_com_-_Sentences_as_LangChain_Document.json'
 ```
 
 Dump the database content for later usage (optional)
 
 ```bash
-dump_database $RESULTS_DIR neo4j.ZenFleshZenBones.MarkdownTextSplitterAndSentences.dump
+jj_dump_database $RESULTS_DIR neo4j.ZenFleshZenBones.MarkdownTextSplitterAndSentences.dump
 ```
 
 In order to validate the dump, erase the database and restore it (out of the
@@ -130,20 +103,20 @@ previous dump)...
 ```bash
 # WARNING: this DELETEs the existing database
 rm -fr $RESULTS_DIR/database     
-restore_database $RESULTS_DIR neo4j.ZenFleshZenBones.MarkdownTextSplitterAndSentences.dump
-launch_neo4j_db $RESULTS_DIR $NEO4J_PORT $NEO4J_USERNAME/$NEO4J_PASSWORD
+jj_restore_database $RESULTS_DIR neo4j.ZenFleshZenBones.MarkdownTextSplitterAndSentences.dump
+jj_launch_neo4j_db $RESULTS_DIR $NEO4J_PORT $NEO4J_USERNAME/$NEO4J_PASSWORD
 ```
 
 Extract knowledge graph in [Turtle](https://en.wikipedia.org/wiki/Turtle_(syntax)) format:
 
 ```bash
-dump_knowledge_graph_in_turtle $RESULTS_DIR ZenFleshZenBones.MarkdownTextSplitterAndSentences.ttl
+jj_dump_knowledge_graph_in_turtle $RESULTS_DIR ZenFleshZenBones.MarkdownTextSplitterAndSentences.ttl
 ```
 
 Eventually turn the context off:
 
 ```bash
-stop_neo4j_db
+jj_stop_neo4j_db
 ```
 
 ## Development
