@@ -30,6 +30,7 @@ This directory holds a copy of the 1957 pdf version of Paul Reps' compilation
 ## Running the converter
 
 ### Running with local installation
+
 ```bash
 cd `git rev-parse --show-toplevel`/Convert
 python3.10 -m venv venv
@@ -97,7 +98,6 @@ docker build -t jejuness:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_
 docker run --rm  -v $RESULTS_DIR:/output jejuness:doc_Zen_Flesh_Zen_Bones --output_directory /output
 ```
 
-
 Prerequisite to Knowledge Graph (KG) extraction: launch a neo4j database
 
 ```bash
@@ -120,15 +120,14 @@ In order to validate the dump, erase the database and restore it (out of the
 previous dump)...
 
 ```bash
-# WARNING: this DELETEs the existing database
-rm -fr $DATABASE_DIR
+# WARNING: this DELETEs the existing database and neo4j.dump file
 jj_neo4j_restore_database $RESULTS_DIR neo4j.ZenFleshZenBones.MarkdownTextSplitterAndSentences.dump
-jj_neo4j_launch_db $RESULTS_DIR $NEO4J_PORT $NEO4J_USERNAME/$NEO4J_PASSWORD
 ```
 
 Extract knowledge graph in [Turtle](https://en.wikipedia.org/wiki/Turtle_(syntax)) format:
 
 ```bash
+jj_neo4j_launch_db $RESULTS_DIR $NEO4J_PORT $NEO4J_USERNAME/$NEO4J_PASSWORD
 jj_dump_knowledge_graph_in_turtle $RESULTS_DIR ZenFleshZenBones.MarkdownTextSplitterAndSentences.ttl
 ```
 
@@ -137,4 +136,3 @@ Eventually turn the context off:
 ```bash
 jj_stop_neo4j_db
 ```
-
