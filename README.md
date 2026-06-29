@@ -39,7 +39,7 @@ pip install -r requirements.txt
 python main.py
 ```
 
-### Testing the convertion results
+### Testing the conversion results
 
 Within the above running context (directory and installed virtual environment)
 
@@ -72,7 +72,7 @@ docker run --rm  -v `pwd`/junk:/output jejuness:doc_Zen_Flesh_Zen_Bones --output
 
 ## Running the full data workflow
 
-Fetch [jj_workflow_shell](https://github.com/EricBoix/jj_workflow_shell#fetch-the-workflow-utilities) 
+Fetch [jj_workflow_shell](https://github.com/EricBoix/jj_workflow_shell#fetch-the-workflow-utilities)
 
 ```bash
 cd `git rev-parse --show-toplevel`         # Implicit from now on
