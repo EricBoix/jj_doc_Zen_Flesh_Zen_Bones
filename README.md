@@ -7,9 +7,7 @@ This repository holds code dedicated to extracting some knowledge graph our of t
 
 - [Notes concerning the original book](#notes-concerning-the-original-book)
 - [Running the converter](#running-the-converter)
-- [Running the PDF conversion with docker](#running-the-pdf-conversion-with-docker)
 - [Running the full data workflow](#running-the-full-data-workflow)
-- [Development](#development)
 
 ## Notes concerning the original book
 
