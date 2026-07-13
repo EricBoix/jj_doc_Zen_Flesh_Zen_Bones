@@ -114,7 +114,7 @@ Buddahood
 Buddhahood
 skandas
 # Technical
-jejuness
+jejuneness
 Oceano
 Oceanof
 pytest

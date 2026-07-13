@@ -60,14 +60,14 @@ python main.py --output_directory ../result_data/
 ### Running the PDF conversion with docker
 
 ```bash
-docker build -t jejuness:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_doc_Zen_Flesh_Zen_Bones.git#:DockerContext
-docker run --rm jejuness:doc_Zen_Flesh_Zen_Bones --help
+docker build -t jejuneness:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_doc_Zen_Flesh_Zen_Bones.git#:DockerContext
+docker run --rm jejuneness:doc_Zen_Flesh_Zen_Bones --help
 ```
 
 Extracting the result out of the container requires local filesystem mount
 
 ```bash
-docker run --rm  -v `pwd`/junk:/output jejuness:doc_Zen_Flesh_Zen_Bones --output_directory /output
+docker run --rm  -v `pwd`/junk:/output jejuneness:doc_Zen_Flesh_Zen_Bones --output_directory /output
 ```
 
 ## Running the full data workflow
@@ -94,8 +94,8 @@ export DATABASE_DIR=$RESULTS_DIR/database
 Convert the original PDF to markdown and JSON (refer above)
 
 ```bash
-docker build -t jejuness:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_doc_Zen_Flesh_Zen_Bones.git#:DockerContext
-docker run --rm  -v $RESULTS_DIR:/output jejuness:doc_Zen_Flesh_Zen_Bones --output_directory /output
+docker build -t jejuneness:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_doc_Zen_Flesh_Zen_Bones.git#:DockerContext
+docker run --rm  -v $RESULTS_DIR:/output jejuneness:doc_Zen_Flesh_Zen_Bones --output_directory /output
 ```
 
 Prerequisite to Knowledge Graph (KG) extraction: launch a neo4j database
