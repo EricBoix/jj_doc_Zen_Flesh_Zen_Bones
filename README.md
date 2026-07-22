@@ -7,7 +7,7 @@ This repository holds code dedicated to extracting some knowledge graph our of t
 
 - [Notes concerning the original book](#notes-concerning-the-original-book)
 - [Running the converter](#running-the-converter)
-- [Running the full data workflow](#running-the-full-data-workflow)
+- [Running the full data workflow with jejune\_cli](#running-the-full-data-workflow-with-jejune_cli)
 
 ## Notes concerning the original book
 
@@ -60,79 +60,70 @@ python main.py --output_directory ../result_data/
 ### Running the PDF conversion with docker
 
 ```bash
-docker build -t jejuneness:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_doc_Zen_Flesh_Zen_Bones.git#:DockerContext
-docker run --rm jejuneness:doc_Zen_Flesh_Zen_Bones --help
+docker build -t jejune:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_doc_Zen_Flesh_Zen_Bones.git#:DockerContext
+docker run --rm jejune:doc_Zen_Flesh_Zen_Bones --help
 ```
 
 Extracting the result out of the container requires local filesystem mount
 
 ```bash
-docker run --rm  -v `pwd`/junk:/output jejuneness:doc_Zen_Flesh_Zen_Bones --output_directory /output
+docker run --rm  -v `pwd`/junk:/output jejune:doc_Zen_Flesh_Zen_Bones --output_directory /output
 ```
 
-## Running the full data workflow
+## Running the full data workflow with jejune_cli
 
-Fetch [jj_workflow_shell](https://github.com/EricBoix/jj_workflow_shell#fetch-the-workflow-utilities)
+Install and configure [`jejune_cli`](https://github.com/EricBoix/jejune_cli), then run `jejune doctor` to verify the configuration. This boils down to
 
 ```bash
-cd `git rev-parse --show-toplevel`         # Implicit from now on
-git clone https://github.com/EricBoix/jj_workflow_shell.git
-source jj_workflow_shell/init.bash
+uv tool install git+https://github.com/EricBoix/jejune_cli
+jejune configuration init     
+# Proceed with the configuration of the files located in .jejune/ sub-directory.
+# Assert the configuration is sound with
+jejune doctor
 ```
 
-and [configure it](https://github.com/EricBoix/jj_workflow_shell#configure-the-shell-utilities) by editing the resulting `.env` file.
-
-Define your target directories
+Define a convenience variable for the results directory:
 
 ```bash
-set +a                                     # For vscode command runner execution
-export RESULTS_DIR=`pwd`/result_data       # Syntactic sugar
-export DATABASE_DIR=$RESULTS_DIR/database
-\rm -fr $DATABASE_DIR                      # Clean slate from previous run
+export RESULTS_DIR=`pwd`/result_data
 ```
 
-Convert the original PDF to markdown and JSON (refer above)
+Run the converter to extract a markdown out of the original PDF :
 
 ```bash
-docker build -t jejuneness:doc_Zen_Flesh_Zen_Bones https://github.com/EricBoix/jj_doc_Zen_Flesh_Zen_Bones.git#:DockerContext
-docker run --rm  -v $RESULTS_DIR:/output jejuneness:doc_Zen_Flesh_Zen_Bones --output_directory /output
+jejune convert build
+jejune convert run --output-dir $RESULTS_DIR
 ```
 
-Prerequisite to Knowledge Graph (KG) extraction: launch a neo4j database
+Run the (Knowledge Graph) extraction (starting a neo4j database being prerequisite)
 
 ```bash
-jj_neo4j_launch_db $RESULTS_DIR $NEO4J_PORT $NEO4J_USERNAME/$NEO4J_PASSWORD
+jejune neo4j delete $RESULTS_DIR    # Avoid collision with previous/other run
+jejune neo4j stats --assert 0/0     # Just making sure deletion was effective
+jejune neo4j start $RESULTS_DIR
+jejune graph extract $RESULTS_DIR \
+  --load_markdown_document \
+    1957_-_Paul_Reps_-_Zen_flesh_zen_bones-A_Collection_of_Zen_and_Pre_Zen_Writings_-_Scan_by_OceanofPDF_dot_com_-_local_converter.md \
+  --load_json_document \
+    1957_-_Paul_Reps_-_Zen_flesh_zen_bones-A_Collection_of_Zen_and_Pre_Zen_Writings_-_Scan_by_OceanofPDF_dot_com_-_Sentences_as_LangChain_Document.json
+jejune neo4j stats --assert 4769/9962
 ```
 
-Run the (Knowledge Graph) extraction
+Optional: dump the database content for later usage (and restore it to assert dump integrity/validity)
 
 ```bash
-jj_extract_knowledge_graph $RESULTS_DIR '--load_markdown_document 1957_-_Paul_Reps_-_Zen_flesh_zen_bones-A_Collection_of_Zen_and_Pre_Zen_Writings_-_Scan_by_OceanofPDF_dot_com_-_local_converter.md  --load_json_document 1957_-_Paul_Reps_-_Zen_flesh_zen_bones-A_Collection_of_Zen_and_Pre_Zen_Writings_-_Scan_by_OceanofPDF_dot_com_-_Sentences_as_LangChain_Document.json'
+jejune neo4j stop
+jejune neo4j dump $RESULTS_DIR neo4j.ZenFleshZenBones.MarkdownTextSplitterAndSentences.dump
+# Restore the database out of the dump (just to make sure)
+# WARNING: restoring DELETEs the existing database
+jejune neo4j restore $RESULTS_DIR neo4j.ZenFleshZenBones.MarkdownTextSplitterAndSentences.dump
+jejune neo4j start $RESULTS_DIR
+jejune neo4j stats --assert 4769/9962
 ```
 
-Dump the database content for later usage (optional)
+Extract knowledge graph in [Turtle](https://en.wikipedia.org/wiki/Turtle_(syntax)) format
 
 ```bash
-jj_neo4j_dump_database $RESULTS_DIR neo4j.ZenFleshZenBones.MarkdownTextSplitterAndSentences.dump
-```
-
-In order to validate the dump, erase the database and restore it (out of the
-previous dump)...
-
-```bash
-# WARNING: this DELETEs the existing database and neo4j.dump file
-jj_neo4j_restore_database $RESULTS_DIR neo4j.ZenFleshZenBones.MarkdownTextSplitterAndSentences.dump
-```
-
-Extract knowledge graph in [Turtle](https://en.wikipedia.org/wiki/Turtle_(syntax)) format:
-
-```bash
-jj_neo4j_launch_db $RESULTS_DIR $NEO4J_PORT $NEO4J_USERNAME/$NEO4J_PASSWORD
-jj_dump_knowledge_graph_in_turtle $RESULTS_DIR ZenFleshZenBones.MarkdownTextSplitterAndSentences.ttl
-```
-
-Eventually turn the context off:
-
-```bash
-jj_stop_neo4j_db
+jejune neo4j dump-turtle $RESULTS_DIR ZenFleshZenBones.MarkdownTextSplitterAndSentences.ttl
+jejune neo4j stop
 ```
